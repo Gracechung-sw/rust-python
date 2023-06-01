@@ -42,3 +42,50 @@ let x: i32 = 10;
 |함수|def my_function|fn my_function|
 |클래스/구조체|class MyClass|struct MyStruct|
 |상수|SCREAMING_SNAKE_CASE = 1|const SCREAMING_SNAKE_CASE: i32 = 1;|
+
+---
+
+## 2. 변수의 불변성
+#### Python
+파이썬에서는 변수를 선언한 다음 다른 값을 넣는 것이 매우 자유롭습니다. 변수의 타입도 상관 없이 새로운 값을 마음대로 넣을 수 있습니다.
+```python
+x = 1
+x = "2"
+x = 3.141592
+# 에러 안 남. 
+```
+
+#### Rust
+Python에는 없는 두 개념이 Rust에는 있음. 
+러스트의 모든 변수는 기본적으로 불변(immutable). 예를 들어, 아래 코드와 같이 let 키워드로 변수를 선언하고, 해당 변수의 값을 바꾸려고 한다면 컴파일이 되지 않습니다.
+```rust
+fn main() {
+    let x = 1;
+    x = 2; // won't compile!
+    println!("{}", x);
+}
+
+// 아래와 같은 에러 발생
+// error[E0384]: cannot assign twice to immutable variable `x`
+//  --> src/main.rs:3:5
+//   |
+// 2 |     let x = 1;
+//   |         -
+//   |         |
+//   |         first assignment to `x`
+//   |         help: consider making this binding mutable: `mut x`
+// 3 |     x = 2; // won't compile!
+//   |     ^^^^^ cannot assign twice to immutable variable
+
+```
+
+따라서 변수(mutable)로 선언하고 싶다면 `mut` 키워드로 가변성을 부여해야함. 
+
+```rust
+fn main() {
+    let mut x = 1;
+    x = 2;
+    println!("{}", x);
+}
+```
+
