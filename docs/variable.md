@@ -176,3 +176,22 @@ fn main() {
 // 실행 결과: 
 // 1.2 -> 1
 ```
+
+### 7. 상수
+#### Python
+Python에서는 상수를 선언해도 변경할 수 있음. 
+#### Rust
+```rust
+const THRESHOLD: i32 = 10;
+
+fn is_big(n: i32) -> bool {
+    n > THRESHOLD
+}
+
+fn main() {
+    println!("{}", THRESHOLD);
+    println!("{}", is_big(5));
+}
+
+```
+컴파일러가 친절하게 상수 THRESHOLD 에는 새로운 값을 할당할 수 없다고 알려주게 됩니다.
