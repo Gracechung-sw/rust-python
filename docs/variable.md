@@ -89,3 +89,90 @@ fn main() {
 }
 ```
 
+### 3. 섀도잉
+> 섀도잉: 이미 선언된 변수명을 재사용해서 새로운 변수를 다시 선언하는 것. 
+#### Rust
+섀도잉을 사용할 경우, mut 키워드 없이도 새로운 값을 변수에 할당할 수 있고, 새로운 변수이기 때문에 타입도 변경할 수 있습니다. 아래 예제에서는 변수 x 에 처음에는 "5" 라는 문자열을 할당했지만, 그 다음에는 섀도잉을 사용해 x에 정수 6을 할당했습니다. 코드를 실행해보면 정상적으로 컴파일됩니다.
+
+```rust
+fn main() {
+    let x = "5";
+
+    let x = 6; // x is redeclared as 6
+
+    println!("The value of x is: {}", x); // 6
+}
+```
+
+### 4. 타입
+#### Python
+엄청 단순 
+```python
+int_var: int = 8
+str_var: str = 'hello'
+float_var: float = 88.9
+bool_bar: bool = True
+```
+#### Rust
+러스트의 원시 타입(primitive type) 목록
+
+| 이름 | 타입 | 이름 | 타입 |
+| ---- | ---- | ---- | ---- |
+| 8비트 정수 | `i8` | 부호 없는 32비트 정수 | `u32` |
+| 16비트 정수 | `i16` | 부호 없는 64비트 정수 | `u64` |
+| 32비트 정수  | `i32` | 부호 없는 128비트 정수 |`u128` |
+| 64비트 정수  | `i64` | 부호 없는 아키텍처 |`usize`  |
+| 128비트 정수 | `i128` | 불리언 | `bool` |
+| 아키텍처 | `isize` | 문자열 | `String` |
+| 부호 없는 8비트 정수 | `u8` | 문자열 슬라이스 | `str` |
+| 부호 없는 16비트 정수 |`u16` | 32비트 부동소수점 실수 | `f32` |
+|  | |64비트 부동소수점 실수 | `f64` |
+
+### 5. 타입 추론
+#### Python
+type을 잘 못 적어도 에러를 뱉지는 않는다. ex. int_var: str = 8 이렇게 해도 에러 안 뱉음. 
+```python
+int_var: str = 8 # 이러면 에러는 발생하지 않지만 vscode editor 단에서 
+# Expression of type "Literal[8]" cannot be assigned to declared type "str"
+#   "Literal[8]" is incompatible with "str"PylancereportGeneralTypeIssues
+```
+이런 type hint는 알 수 있음. 
+
+Rust에 rust-analyzer가 있다면 python에는 mypy, pyright 같은 것들이 있음. 
+mypy, pyright 설치와 사용법 & 주의사항
+
+```bash
+# mypy 공식 문서: https://mypy.readthedocs.io/en/stable/getting_started.html
+$ pip install mypy
+# 사용방법: mypy [타입 체크가 필요한 파일명]
+
+# pyright 공식 문서: https://github.com/microsoft/pyright
+$ sudo npm install -g pyright
+# 사용방법: pyright [타입 체크가 필요한 파일명]  
+```  
+#### Rust
+
+러스트 코드를 작성할 때 대부분의 경우에는 개발자가 변수에 타입을 지정하지 않아도 앞에서 설치한 rust-analyzer가 알아서 타입을 추론(inference)해서 화면에 보여줍니다. 비슷한 원리로 코드가 컴파일될 때에는 컴파일러가 타입을 추론해서 변수를 선언하게 됩니다. 이때, 추측되는 타입의 기본값은 정수형은 i32 , 실수형은 f64 입니다.
+
+### 6. 타입 변환(Casting)
+
+#### Python
+파이썬에서는 타입 이름을 바로 사용해 타입 변환을 수행합니다.
+```python
+x = 1.2
+y = int(x)
+print(f"{x} -> {y}");
+# 실행 결과: 
+# 1.2 -> 1
+```
+#### Rust
+`as` 키워드 사용. 
+``` Rust
+fn main() {
+    let x: f64 = 1.2;
+    let y = x as i32;
+    println!("{} -> {}", x, y);
+}
+// 실행 결과: 
+// 1.2 -> 1
+```
