@@ -96,3 +96,26 @@ fn main() {
 // My name is buzzi
 // Hello buzzi
 ```
+
+## 4. 익명 함수(Anonymous function)
+익명 함수: 이름이 없는 함수라는 뜻으로, 프로그램 내에서 변수에 할당하거나 다른 함수에 파라미터로 전달되는 함수
+### Python
+Python에서는 익명 함수를 람다(Lambda function) 라고 부름.
+`lambda`키워드 사용
+`파라미터: 리턴값 형식으로 함수의 내용을 정의`
+```python
+my_func = lambda x: x + 1 # my_func 이라는 변수에 익명함수를 할당한 뒤
+print(my_func(3)) # print 함수에 파라미터로 전달. 
+```
+
+### Rust
+러스트에도 람다 함수와 비슷한 개념이 있는데 바로 클로저(Closure). 
+> JS의 closure, 익명 함수 개념과 차이점은 없는지 알아보고 적기. 
+클로저는 파라미터를 `| | 의 사이에 선언하고, 그 뒤에 함수에서 리턴하는 부분을 작성`합니다.
+```rust
+fn main() {
+    let my_func = |x| x + 1;
+    println!("{}", my_func(3));
+}
+
+```
