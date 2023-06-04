@@ -31,7 +31,7 @@ Python은 모든 객체의 데이터를 힙 영역에 저장.
 2. 어떤 객체가 언제 메모리에서 할당 해제되는지를 개발자가 명시적으로 알 수 있는 방법이 없고 가비지 콜렉터가 이를 전담하기 때문에 프로그램이 불필요하게 많은 메모리를 사용할 가능성도 있습니다.
 
 ### Rust
-**`소유권(Ownership)`이라는 개념을 통해 메모리를 관리**
+**`소유권(Ownership)`이라는 개념을 통해 메모리를 관리** 러스트에서는 어떤 값이 더이상 사용되지 않는지를 소유권을 사용해 판단합니다. 모든 값에 소유자를 지정하고, 이 값을 소유하고 있는 소유자가 없게 되면 즉시 값이 메모리에서 할당 해제되는 원리
 
 **러스트는 스택 영역과 힙 영역 모두를 사용**합니다. 러스트는 기본적으로 아래와 같이 **함수에서 사용하는 모든 값을 제한된 크기의 스택 영역에 저장**합니다. 따라서 함수 호출이 종료되면 지역 변수 foo 와 var는 모두 삭제됩니다.
 ```rust
@@ -53,3 +53,119 @@ fn main() {
 > - 스레드 안전성이 보장:  여러 개의 스레드에서 하나의 값에 접근하고자 할 때 발생할 수 있는 경합 조건(Race condition)이나 데드락(Deadlock)이 발생하지 않는다는 의미입니다. 이 두 가지 문제가 멀티스레딩 프로그램을 만들 때 가장 어렵고 복잡한 문제이지만 러스트에서는 이를 컴파일 타임에 탐지할 수 있기 때문에 안정성이 보장됩니다.
 
 
+
+
+
+## ownership 소유권 규칙
+- 모든 "값"들은 해당 값을 "소유"하고 있는 소유자(Owner)가 존재합니다.
+- 한 값에 하나의 소유자만 존재할 수 있습니다. 하나의 값에 두 개의 소유자가 동시에 존재할 수 없습니다.
+- 소유자가 현재 코드의 스코프(./variable.md 의 Scope에서 rust 의 scope는 {} 라고 했음. )에서 벗어나면, 값은 메모리에서 할당 해제됩니다.
+```rust
+fn dummy(x: String) {
+    println!("{}", x);
+  	// x is dropped
+}
+
+fn main() {
+    let x = String::from("Hello");
+    dummy(x);
+    println!("{}", x);  // This line won't compile
+}
+```
+함수 dummy 에 문자열이 전달된 다음, 함수를 벗어나면 그 즉시 x 는 할당 해제됩니다. 그런데 이미 할당 해제된 x를 9번 라인에서 참조하고 있기 때문에 오류가 발생합니다. 그러면 모든 값은 다른 함수에 전달하면 영원히 사용하지 못하는 걸까요? 이런 경우 사용할 수 있는 두 가지 방법이 있습니다.
+
+## 소유권 돌려주기
+위의 예제처럼 함수 parameter에 전달함으로써 소유권이 넘어간 이후, 사용하고 나서 다시 소유권을 호출했던 곳으로 돌려주는 방법
+1. 리턴해주기.
+```rust
+fn dummy(x: String) -> String {
+    println!("{}", x);
+    x
+}
+
+fn main() {
+    let x = String::from("Hello");
+    let x = dummy(x);
+    println!("{}", x);
+}
+```
+하지만 이 방법은 매번 함수의 리턴값을 변수로 재선언해주어야 하기 때문에 코드의 가독성이 떨어지고, 값이 어느 변수로 이동하는지를 알기 어려운 단점이 있습니다.
+
+2. 레퍼런스와 소유권 빌리기  
+러스트에는 값의 소유권을 잠시 빌려줄 수 있는 개념인 `대여(borrow)`가 있음.   
+변수 앞에 `&` 키워드를 사용하면 되는데, 해당 변수의 레퍼런스(reference)를 선언한다는 의미입니다. 레퍼런스란 소유권을 가져가지 않고 해당 값을 참조할 수 있는 방법입니다. 
+
+```rust
+fn main() {
+    let x = String::from("Hello");
+    let y = &x; // &를 사용해서 할당했기 때문에 "Hello"의 값의 소유권은 여전히 x에 있고, y는 단순히 값을 참조만 합니다. 따라서 마지막에서 변수 x와 y를 모두 프린트해도 에러가 발생하지 않습니다.
+
+    println!("{} {}", x, y);
+}
+```
+이 때 y의 타입은 `&String` 으로 문자열의 레퍼런스 타입임. 
+
+## 가변 레퍼런스
+소유권을 빌려온 후(레퍼런스), 값을 변경하고 싶다면 `가변 레퍼런스`로 빌려오면 된다. 
+1. dummy함수의 파라미터 y 의 타입이 &mut String 으로 변경
+2. 변수 x를 가변 변수로 선언
+3. dummy함수에 x를 전달할 때 가변 레퍼런스 &mut x로 전달
+```rust
+fn dummy(y: &mut String) {
+    y.push_str(" world!");
+    println!("{}", y);
+    // ownership returns to `x`
+}
+
+fn main() {
+    let mut x = String::from("Hello");
+    dummy(&mut x);
+    println!("{}", x);
+}
+
+// 실행 결과
+// Hello world!
+// Hello world!
+```
+
+## 다수의 가변 레퍼런스 불가
+변수 x의 소유권을 한 번 이상 대여할 수 없다고 합니다. 만일 하나의 소유권을 여러 개의 변수가 빌릴 수 있다면 큰 문제가 발생할 가능성이 있습니다. 
+하나의 메모리를 여러 곳에서 접근할 수 있기 때문에 버그가 발생할 수 있습니다. 예를 들어 어떤 가변 레퍼런스에서 값을 변경했는데, 다른 곳에서는 변경 전의 값을 필요로 한다면 예상치 못한 결과가 나올 수 있습니다. 따라서 러스트에서는 하나의 값에 대한 여러 개의 가변 레퍼런스를 허용하지 않습니다. 
+```rust
+fn main() {
+    let mut x = String::from("Hello");
+    let y = &mut x; // 여기도 가변 레퍼런스 하고 
+    let z = &mut x; // 여기도 가변 레퍼런스 하고 
+
+    println!("{} {}", y, z);
+}
+
+// 실행 결과
+
+   Compiling rust_part v0.1.0 (/Users/code/temp/rust_part)
+error[E0499]: cannot borrow `x` as mutable more than once at a time
+ --> src/main.rs:4:13
+  |
+3 |     let y = &mut x;
+  |             ------ first mutable borrow occurs here
+4 |     let z = &mut x;
+  |             ^^^^^^ second mutable borrow occurs here
+5 |
+6 |     println!("{} {}", y, z);
+  |                       - first borrow later used here
+
+```
+
+하지만 가변 레퍼런스가 아니라 단순 레퍼런스는 여러개 가능. 
+```rust
+fn main() {
+    let x = String::from("Hello");
+    let y = &x;
+    let z = &x;
+
+    println!("{} {}", y, z);
+}
+
+// 실행 결과
+Hello Hello
+```
